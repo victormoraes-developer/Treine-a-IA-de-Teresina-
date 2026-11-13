@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>IA de Teresina — Arcade Edition</title>
+<meta name="description" content="Jogo educativo de Matemática e IA: treine um modelo, cace dados falsos e engane a IA de Teresina. XII SEMAT · UESPI 2026.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<noscript><p style="padding:24px;color:#fff;font-family:sans-serif">Ative o JavaScript para jogar IA de Teresina.</p></noscript>
+
+<div class="splash" id="splashScreen"><div class="lp">
+  <nav class="lp-nav">
+    <div class="lp-brand">🧠 IA DE <span>TERESINA</span></div>
+    <div class="lp-links"><a role="link" tabindex="0" data-t="lpHow">Como funciona</a><a role="link" tabindex="0" data-t="lpPhases">Fases</a><a role="link" tabindex="0" data-t="lpMath">Matemática</a><a role="link" tabindex="0" data-t="lpRank">Ranking</a><a role="link" tabindex="0" data-t="lpFaq">Dúvidas</a></div>
+    <button class="lp-cta js-start">▶ JOGAR</button>
+  </nav>
+
+  <section class="lp-hero">
+    <div>
+      <div class="lp-pill">XII SEMAT · UESPI · 2026</div>
+      <h1>TREINE A IA.<br><em>DEPOIS, ENGANE-A.</em></h1>
+      <p class="lp-lead">Calibre um modelo, cace dados falsos e descubra como a Matemática decide o que uma inteligência artificial prevê — usando a temperatura dos bairros de Teresina.</p>
+      <div class="lp-actions"><button class="btn-start js-start" id="btnStart">▶ INICIAR MISSÃO</button><a class="lp-ghost" role="link" tabindex="0" data-t="lpHow">Ver como funciona ↓</a></div>
+      <ul class="lp-proof"><li>⚡ 8 fases</li><li>⏱ ~5 minutos</li><li>📶 Funciona offline</li><li>📱 Celular, tablet e PC</li></ul>
+    </div>
+    <div class="lp-vis">
+      <svg class="lp-svg" viewBox="0 0 420 300" role="img" aria-label="Uma reta de regressão é calibrada e depois puxada por um dado falso">
+        <path d="M40 30H400M40 90H400M40 150H400M40 210H400M40 260H400M40 30V260M130 30V260M220 30V260M310 30V260M400 30V260" stroke="#1a2740" fill="none"/>
+        <g fill="#38bdf8" stroke="#0b1220" stroke-width="2"><circle cx="60" cy="90" r="6"/><circle cx="110" cy="105" r="6"/><circle cx="160" cy="125" r="6"/><circle cx="210" cy="140" r="6"/><circle cx="260" cy="160" r="6"/><circle cx="310" cy="170" r="6"/><circle cx="360" cy="195" r="6"/></g>
+        <circle cx="390" cy="48" r="8" fill="#f472b6" stroke="#0b1220" stroke-width="2"><animate attributeName="opacity" values="0;0;0;1;1;0" keyTimes="0;.45;.5;.55;.9;1" dur="8s" repeatCount="indefinite"/></circle>
+        <line x1="40" x2="400" y1="45" y2="45" stroke="#ef4444" stroke-width="4" stroke-linecap="round">
+          <animate attributeName="y1" values="45;45;85;85;125;125;45" keyTimes="0;.1;.3;.5;.65;.9;1" dur="8s" repeatCount="indefinite"/>
+          <animate attributeName="y2" values="45;45;208;208;150;150;45" keyTimes="0;.1;.3;.5;.65;.9;1" dur="8s" repeatCount="indefinite"/>
+          <animate attributeName="stroke" values="#ef4444;#ef4444;#22c55e;#22c55e;#a855f7;#a855f7;#ef4444" keyTimes="0;.1;.3;.5;.65;.9;1" dur="8s" repeatCount="indefinite"/>
+        </line>
+        <text x="48" y="22">ŷ = a·x + b<animate attributeName="opacity" values="1;1" dur="1s" repeatCount="indefinite"/></text>
+        <text x="250" y="285">IA calibrada ✓<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.28;.32;.5;.55;1" dur="8s" repeatCount="indefinite"/></text>
+        <text x="250" y="285" style="fill:#f472b6">dado falso! ⚠<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.55;.6;.9;.95" dur="8s" repeatCount="indefinite"/></text>
+        <text x="250" y="285" style="fill:#fca5a5">treinando…<animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.1;.2;.95;1" dur="8s" repeatCount="indefinite"/></text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="lp-sec" id="lpHow">
+    <div class="lp-row rv"><div><div class="lp-tag">01 · TREINE</div><h3>Ensine a IA a enxergar o calor</h3><p>Arraste a reta até o erro (EQM) ficar mínimo. Cada ponto é um bairro de Teresina; cada barra é o quanto a IA errou. Você sente, na prática, o que “aprender com dados” significa.</p></div>
+      <div class="lp-art"><svg class="lp-svg" viewBox="0 0 320 190"><line x1="20" y1="40" x2="300" y2="150" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/><g stroke="#94a3b8" stroke-dasharray="3 4"><path d="M60 62V45M110 82V105M160 102V90M210 122V140M260 142V132"/></g><g fill="#38bdf8"><circle cx="60" cy="45" r="6"/><circle cx="110" cy="105" r="6"/><circle cx="160" cy="90" r="6"/><circle cx="210" cy="140" r="6"/><circle cx="260" cy="132" r="6"/></g><text x="20" y="180" style="fill:#7dd3fc;font:800 12px ui-monospace,monospace">resíduo = y − ŷ</text></svg></div></div>
+    <div class="lp-row rv"><div><div class="lp-tag">02 · INVESTIGUE</div><h3>Detetive de dados</h3><p>Um sensor mente. Uma periferia ficou de fora. Descubra o <b>outlier</b>, corrija o <b>viés de amostragem</b> e veja a reta se endireitar para toda a cidade.</p></div>
+      <div class="lp-art"><svg class="lp-svg" viewBox="0 0 320 190"><g fill="#164e63" stroke="#31456b" stroke-width="2"><rect x="10" y="10" width="95" height="50" rx="8"/><rect x="113" y="10" width="95" height="50" rx="8"/><rect x="216" y="10" width="95" height="50" rx="8"/><rect x="10" y="70" width="95" height="50" rx="8"/><rect x="113" y="70" width="95" height="50" rx="8"/><rect x="216" y="70" width="95" height="50" rx="8"/><rect x="113" y="130" width="95" height="50" rx="8"/><rect x="216" y="130" width="95" height="50" rx="8"/></g><rect class="blk" x="10" y="130" width="95" height="50" rx="8" stroke="#ef4444" stroke-width="2"/><text x="58" y="160" text-anchor="middle" style="fill:#fecaca">⚠ 44,0 °C</text></svg></div></div>
+    <div class="lp-row rv"><div><div class="lp-tag">03 · ENGANE</div><h3>Agora, vire o hacker</h3><p>Plante dados falsos nas pontas do gráfico e faça a IA errar sem ser detectada. Você descobre a <b>alavancagem</b>: por que um único ponto no lugar certo vale mais que dez no meio.</p></div>
+      <div class="lp-art"><svg class="lp-svg" viewBox="0 0 320 190"><line x1="20" y1="60" x2="300" y2="140" stroke="#38bdf8" stroke-width="3" stroke-dasharray="6 6" opacity=".6"/><line x1="20" y1="95" x2="300" y2="72" stroke="#a855f7" stroke-width="4" stroke-linecap="round"/><g fill="#38bdf8"><circle cx="50" cy="70" r="6"/><circle cx="110" cy="85" r="6"/><circle cx="170" cy="103" r="6"/><circle cx="230" cy="120" r="6"/></g><rect x="284" y="26" width="13" height="13" fill="#f472b6" transform="rotate(45 290 32)"/><text x="20" y="180" style="fill:#e9d5ff;font:800 12px ui-monospace,monospace">h = 1/n + (x−x̄)²/Σ(x−x̄)²</text></svg></div></div>
+  </section>
+
+  <section class="lp-sec" id="lpPhases"><h2>8 FASES, 8 CONCEITOS</h2><p class="lp-sub">Da calibração ao ataque: cada fase ensina uma ideia real de ciência de dados e segurança de IA.</p><div class="lp-grid" id="lpGrid"></div></section>
+
+  <section class="lp-sec" id="lpMath"><h2>A MATEMÁTICA POR TRÁS</h2><p class="lp-sub">Nada de caixa-preta: tudo que a IA faz aqui cabe numa folha de caderno.</p>
+    <div class="lp-grid"><div class="lp-card"><b>Modelo</b><div class="lp-formula">ŷ = a·x + b</div><span>Reta que relaciona área verde e temperatura.</span></div>
+    <div class="lp-card"><b>Erro</b><div class="lp-formula">EQM = (1/n)·Σ(y−ŷ)²</div><span>Quanto menor, melhor a IA.</span></div>
+    <div class="lp-card"><b>Aprendizado</b><div class="lp-formula">a ← a − η·∂EQM/∂a</div><span>Gradiente descendente: descer a ladeira do erro.</span></div>
+    <div class="lp-card"><b>Alavancagem</b><div class="lp-formula">h = 1/n + (x−x̄)²/Σ(x−x̄)²</div><span>Quem tem poder para puxar a reta.</span></div></div>
+  </section>
+
+  <section class="lp-sec lp-rank" id="lpRank"><h2>RANKING DO DIA</h2><p class="lp-sub">As melhores pontuações deste dispositivo. Será que você entra no top 10?</p><div class="rank-list" id="lpRankList" style="max-height:none"></div></section>
+
+  <section class="lp-sec" id="lpFaq"><h2>DÚVIDAS RÁPIDAS</h2><p class="lp-sub"></p>
+    <details><summary>O que é este jogo?</summary><p>Um jogo educativo sobre regressão linear e segurança de IA. Você treina um modelo que prevê a temperatura de bairros de Teresina, corrige dados ruins e tenta enganá-lo.</p></details>
+    <details><summary>Preciso de internet?</summary><p>Não. O jogo roda inteiro no navegador, sem conexão.</p></details>
+    <details><summary>Os dados são reais?</summary><p>Os valores são didáticos e simulados, inspirados no calor de Teresina. O foco é entender o método, não medir a cidade.</p></details>
+    <details><summary>A IA realmente aprende?</summary><p>Sim, de forma simples: é uma regressão linear ajustada por mínimos quadrados e gradiente descendente — a base de muitos modelos maiores.</p></details>
+    <details><summary>Transparência sobre o uso de IA</summary><p>Ferramentas de IA apoiaram a programação do jogo. A Matemática, os dados e os testes são conferidos pela equipe, e os limites do modelo são discutidos no próprio jogo (viés, poucos dados e extrapolação).</p></details>
+  </section>
+
+  <section class="lp-final"><h2>PRONTO PARA ENGANAR A IA?</h2><button class="btn-start js-start">▶ INICIAR MISSÃO</button></section>
+
+  <footer class="lp-foot">
+    <div class="by">🎓 Estudantes do CETI Governador Dirceu Mendes Arcoverde</div><br>
+    <b>XII Semana de Matemática da UESPI</b> · Feira de Matemática, Tecnologia e Inovação<br>
+    16 a 19 de novembro de 2026 · Teresina, PI<br>
+    Tema: “Conexões Inteligentes: A Matemática na Era da IA e das Novas Tecnologias de Ensino”
+  </footer>
+</div></div>
+
+<div class="stage-overlay" id="stageOverlay">
+  <div class="stage-flash"></div>
+  <div class="stage-card">
+    <div class="stage-num" id="stageNum">1</div>
+    <div class="stage-content">
+      <div class="stage-tag" id="stageTag">STAGE 01 / 08</div>
+      <div class="stage-title" id="stageTitle">CALIBRAÇÃO</div>
+      <div class="stage-sub" id="stageSub">Arraste as pontas da reta</div>
+    </div>
+  </div>
+</div>
+
+<div class="clear-overlay" id="clearOverlay">
+  <div class="clear-card">
+    <div class="clear-check">✓</div>
+    <div class="clear-title">STAGE CLEAR!</div>
+    <div class="clear-bonus" id="clearBonus">+300 PTS</div>
+    <div class="clear-extra" id="clearExtra"></div>
+  </div>
+</div>
+
+<div class="combo-flash" id="comboFlash">
+  <div class="combo-flash-inner">
+    <div class="combo-flash-text" id="comboFlashText">COMBO x3!</div>
+    <div class="combo-flash-sub" id="comboFlashSub">+100 PTS EXTRA</div>
+  </div>
+</div>
+
+<div class="concept-card" id="conceptCard">
+  <button class="concept-close" id="conceptClose" aria-label="Fechar">×</button>
+  <div class="concept-icon" id="conceptIcon">💡</div>
+  <div class="concept-tag" id="conceptTag">CONCEITO</div>
+  <div class="concept-title" id="conceptTitle">Ajuste de Modelo</div>
+  <div class="concept-text" id="conceptText">Uma reta representa a relação entre variáveis.</div>
+  <div class="concept-formula" id="conceptFormula">ŷ = a·x + b</div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="brand">🧠 IA DE <span>TERESINA</span></div>
+    <div class="hud">
+      <div class="chip timer" id="hudTimer">0:00</div>
+      <div class="chip combo" id="hudCombo">🔥 x0</div>
+      <div class="chip lvl"><span class="lvl-badge">LV</span><b id="hudLevel">1</b></div>
+      <div class="chip">⭐ <b id="hudScore">0</b></div>
+      <button class="chip" id="btnMath" title="Ver a Matemática" aria-label="Ver a Matemática">📐</button>
+      <button class="chip" id="btnMute" title="Som" aria-label="Ligar ou desligar o som">🔊</button>
+      <button class="chip" id="btnFull" title="Tela cheia" aria-label="Tela cheia">⛶</button>
+      <button class="chip" id="btnReset" title="Reiniciar" aria-label="Reiniciar a partida">↻</button>
+    </div>
+  </header>
+  <div class="stage-track" id="stagePips">
+    <div class="pip active" data-n="1"></div>
+    <div class="pip" data-n="2"></div>
+    <div class="pip" data-n="3"></div>
+    <div class="pip" data-n="4"></div>
+    <div class="pip" data-n="5"></div>
+    <div class="pip" data-n="6"></div>
+    <div class="pip" data-n="7"></div>
+    <div class="pip" data-n="8"></div>
+  </div>
+  <div class="banner" id="banner" role="status" aria-live="polite">Arraste as pontas da reta para calibrar a previsão de calor!</div>
+  <div class="mathstrip">
+    <span class="ms-tag">CÁLCULO</span>
+    <span class="ms-body" id="msBody" title="Ver a Matemática">ŷ = a·x + b</span>
+    <div class="train-indicator">
+      <svg class="brain" id="brain" viewBox="0 0 60 22" aria-hidden="true"></svg>
+      <div class="train-stat"><span class="lbl">ÉPOCA</span><span class="val" id="epochNum">0</span></div>
+      <div class="train-stat"><span class="lbl">LOSS</span><span class="val" id="lossVal">—</span></div>
+    </div>
+  </div>
+  <main>
+    <section class="panel" id="graphPanel">
+      <div class="boss-badge">⚠ BOSS FIGHT ⚠</div>
+      <div class="hack-badge">💀 MODO HACKER 💀</div>
+      <div class="thermo">
+        <div class="tube"><div class="mercury" id="mercury"></div></div>
+        <div class="tval" id="tval">43°C</div>
+        <div class="tlabel">SENSAÇÃO<br>TÉRMICA</div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="graph"></canvas>
+        <div class="prec-overlay">PRECISÃO<div class="prec-bar"><div class="prec-fill" id="precFill"></div></div></div>
+        <div class="eqm-readout" id="eqmReadout">EQM 0,000</div>
+        <div class="train-log" id="trainLog"></div>
+        <div class="hack-toolbar" id="hackToolbar">
+          <button class="hack-btn" id="btnUndoHack">↶ Desfazer</button>
+          <button class="hack-btn" id="btnClearHack">⟲ Limpar</button>
+        </div>
+      </div>
+    </section>
+    <section class="panel" id="mapPanel">
+      <div class="map-title">MAPA DE TERESINA</div>
+      <canvas id="aiSphere" aria-hidden="true"></canvas>
+      <div class="ai-say" id="aiSay" role="status"></div>
+      <svg id="map" viewBox="0 0 324 222" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="map-legend">
+        <div class="lg"><span class="dot" style="background:#164e63"></span>COM DADOS</div>
+        <div class="lg"><span class="dot" style="background:#475569"></span>SEM DADOS</div>
+        <div class="lg"><span class="dot" style="background:#166534"></span>COLETADO</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="eduModal">
+  <div class="card edu-card">
+    <div class="edu-badge">📚 CONCEITO</div>
+    <div class="edu-scroll">
+    <div class="edu-icon" id="eduIcon">📈</div>
+    <div class="edu-term" id="eduTerm">Regressão Linear</div>
+    <div class="edu-def" id="eduDef"></div>
+    <div class="edu-formula-box">
+      <div class="edu-formula-label">FÓRMULA</div>
+      <div class="edu-formula" id="eduFormula"></div>
+    </div>
+    <div class="edu-why" id="eduWhy"></div>
+    <div class="edu-preview" id="eduPreview"></div>
+    <button class="btn" id="btnEduUnderstood">Entendi ✓</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="anomalyModal">
+  <div class="card">
+    <h3>🔍 Analisar Causa da Anomalia</h3>
+    <p>O sensor do <b>Polo Industrial</b> marcou <b>44,0 °C</b> enquanto o modelo previa <b id="predVal">—</b>.</p>
+    <div class="calcbox" id="calcBox"></div>
+    <p>Qual é o <b>resíduo</b> desse sensor?</p>
+    <div class="options" id="anomalyOptions"></div>
+    <div class="loading-wrap" id="loadingWrap">
+      <div class="loading-bar"><div class="loading-fill" id="loadingFill"></div></div>
+      <div class="loading-txt" id="loadingTxt">Treinando a IA…</div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="quizModal">
+  <div class="card">
+    <h3 id="quizTitle"></h3>
+    <div id="quizBody"></div>
+    <div class="options" id="quizOptions"></div>
+  </div>
+</div>
+
+<div class="overlay" id="mathModal">
+  <div class="card">
+    <h3>📐 A Matemática por trás da IA</h3>
+    <div class="calcbox" style="border-left-color:#f59e0b">
+      <div class="cl"><span>1 · Regressão Linear</span><b>ŷ = a·x + b</b></div>
+      <div class="cl"><span>a = <b id="mA">0</b> · b = <b id="mB">0</b></span></div>
+    </div>
+    <div class="calcbox">
+      <div class="cl"><span>2 · EQM = (1/n)·Σ(y−ŷ)²</span><b id="mEqm">0</b></div>
+      <div class="cl"><span>n = <b id="mN">0</b></span></div>
+    </div>
+    <div class="calcbox">
+      <div class="cl"><span>3 · Gradiente ∂EQM/∂a = −(2/n)Σx(y−ŷ)</span><b id="mGa">0</b></div>
+      <div class="cl"><span>Gradiente ∂EQM/∂b = −(2/n)Σ(y−ŷ)</span><b id="mGb">0</b></div>
+    </div>
+    <div class="calcbox">
+      <div class="cl"><span>4 · Passo</span><b>a ← a − η·∂EQM/∂a</b></div>
+      <div class="cl"><span>b ← b − η·∂EQM/∂b</span></div>
+    </div>
+    <div class="calcbox" style="border-left-color:#a855f7">
+      <div class="cl"><span>5 · Alavancagem de um ponto</span><b>h = 1/n + (x−x̄)²/Σ(x−x̄)²</b></div>
+      <div class="cl"><span>Pontos nos extremos têm h grande → puxam a reta</span></div>
+    </div>
+    <p style="font-size:12px;margin-top:6px">Um <b>outlier</b> tem resíduo grande e puxa a reta inteira. Amostra incompleta gera <b>viés</b>. Um dado com <b>alta alavancagem</b> e resíduo pequeno escapa do detector — é o <b>mascaramento</b>.</p>
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn ghost" id="closeMath">FECHAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="finalModal">
+  <div class="card final-card">
+    <div style="font-size:40px" id="finalEmoji">🥇</div>
+    <div class="final-title" id="finalTitle">HACKER DE TERESINA</div>
+    <div class="final-sub">Titulação XII SEMAT · IA de Teresina</div>
+    <div class="stat-row">
+      <div class="stat"><div class="v" id="finalScore">0</div><div class="l">PONTOS</div></div>
+      <div class="stat"><div class="v" id="finalTime">0s</div><div class="l">TEMPO</div></div>
+      <div class="stat"><div class="v" id="finalCombo">0</div><div class="l">COMBO</div></div>
+    </div>
+    <div class="initials-row" id="initialsRow">
+      <input type="text" id="initialsInput" maxlength="3" placeholder="ABC" aria-label="Suas iniciais">
+      <button class="btn green" id="btnSaveRank" style="white-space:nowrap">SALVAR</button>
+    </div>
+    <div class="recap-t" id="recapT"></div>
+    <div class="recap" id="recap"></div>
+    <div class="rank-list" id="rankList"></div>
+    <button class="btn" id="btnNextPlayer" style="margin-top:8px">▶ PRÓXIMO JOGADOR</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
