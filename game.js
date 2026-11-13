@@ -45,7 +45,7 @@ function aiSay(t,mode,ms=2800){const el=document.getElementById('aiSay');if(!el|
 const pick=a=>a[(Math.random()*a.length)|0];
 const SAY_OK=['Boa! Aprendi com esse dado. 🧠','Isso! Meu erro caiu. 📉','Calibrada! Obrigada! ✨','Teresina ficou mais clara pra mim. 🌡️','Matemática funcionando! 🔥'];
 const SAY_BAD=['Hmm… não foi dessa vez. 🤔','Quase! Olhe os resíduos. 📏','Errar faz parte de aprender! 💡','Tente de novo — eu confio em você. 💪'];
-const SAY_STAGE={1:'Me ajude a achar a reta certa!',2:'Onde eu mais errei? Me mostre!',3:'Tem algo estranho nos sensores…',4:'Cinco curvas… só uma é a melhor!',5:'Eu só conheço o centro. Me mostre a periferia!',6:'O que eu aprendi, afinal?',7:'Agora faça a conta sem ajuda! 🔮',8:'Dica: pontos nas pontas puxam mais a reta. 😈'};
+const SAY_STAGE={1:'Me ajude a achar a reta certa!',2:'Onde eu mais errei? Me mostre!',3:'Tem algo estranho nos sensores…',4:'Cinco curvas… só uma é a melhor!',5:'O que eu aprendi, afinal?',6:'Agora faça a conta sem ajuda! 🔮',7:'Dica: pontos nas pontas puxam mais a reta. 😈'};
 
 /* TRAIN LOG */
 const trainLogMessages=[];
@@ -69,23 +69,22 @@ const ACHIEVEMENTS={
 const unlocked=new Set();
 function unlock(key){if(unlocked.has(key))return;unlocked.add(key);const a=ACHIEVEMENTS[key];if(!a)return;const el=document.createElement('div');el.className='achievement';el.innerHTML=`<div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div>`;document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('show'));setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),500);},2600);coinSound();}
 
-/* CONCEPT CARDS */
+/* CONCEPT CARDS (7 fases agora) */
 const CONCEPTS={
   1:{icon:'✏️',tag:'FASE 1',title:'Calibração',text:'Ajuste a reta até o erro (EQM) ser mínimo. Meta: EQM ≤ 0,22.',formula:'ŷ = a·x + b'},
   2:{icon:'🎯',tag:'FASE 2',title:'Maior resíduo',text:'Toque no ponto com maior erro. Depois calcule o resíduo exato.',formula:'resíduo = y − ŷ'},
   3:{icon:'🚨',tag:'FASE 3',title:'Outlier',text:'Encontre o sensor anômalo no mapa. Ele destrói o modelo.',formula:'resíduo grande = suspeito'},
   4:{icon:'📉',tag:'FASE 4',title:'Qual curva tem menor EQM?',text:'5 curvas mistas (retas + parábolas). Só uma tem erro mínimo. Passe o dedo sobre cada.',formula:'∇EQM = (∂a, ∂b)'},
-  5:{icon:'🗺️',tag:'FASE 5',title:'Viés',text:'A IA só viu o centro. Colete dados da periferia.',formula:'mais dados = menos viés'},
-  6:{icon:'📊',tag:'FASE 6',title:'Interpretação',text:'O que o coeficiente "a" significa no mundo real?',formula:'a = Δy / Δx'},
-  7:{icon:'🔮',tag:'FASE 7',title:'Previsão',text:'Calcule ŷ para x=18% e clique no gráfico. Sem dica!',formula:'ŷ = a·18 + b'},
-  8:{icon:'💀',tag:'FASE 8',title:'Engane a IA',text:'Plante até 3 pontos falsos para a IA prever ≥35°C em x=18%. Escape do detector!',formula:'h = 1/n + (x−x̄)²/Σ(x−x̄)²'}
+  5:{icon:'📊',tag:'FASE 5',title:'Interpretação',text:'O que o coeficiente "a" significa no mundo real?',formula:'a = Δy / Δx'},
+  6:{icon:'🔮',tag:'FASE 6',title:'Previsão',text:'Calcule ŷ para x=18% e clique no gráfico. Sem dica!',formula:'ŷ = a·18 + b'},
+  7:{icon:'💀',tag:'FASE 7',title:'Engane a IA',text:'Plante até 3 pontos falsos para a IA prever ≥ 35°C em x=18%. Escape do detector!',formula:'h = 1/n + (x−x̄)²/Σ(x−x̄)²'}
 };
 let conceptTimer=null;
 function showConcept(n){const c=CONCEPTS[n];if(!c)return;document.getElementById('conceptIcon').textContent=c.icon;document.getElementById('conceptTag').textContent=c.tag;document.getElementById('conceptTitle').textContent=c.title;document.getElementById('conceptText').textContent=c.text;document.getElementById('conceptFormula').textContent=c.formula;document.getElementById('conceptCard').classList.add('show');clearTimeout(conceptTimer);conceptTimer=setTimeout(hideConcept,9000);}
 function hideConcept(){document.getElementById('conceptCard').classList.remove('show');clearTimeout(conceptTimer);}
 document.getElementById('conceptClose').addEventListener('click',hideConcept);
 
-/* EDU CONTENT */
+/* EDU CONTENT (sem 'bias' - a fase 5 antiga foi removida) */
 const EDU_CONTENT={
   regression:{icon:'📈',term:'Regressão Linear',
     def:'A IA busca a reta da forma ŷ = a·x + b que melhor explica os dados. "a" é a inclinação (quanto y muda quando x aumenta em 1) e "b" é onde a reta corta o eixo y. É o modelo preditivo mais simples que existe.',
@@ -107,11 +106,6 @@ const EDU_CONTENT={
     formula:'a ← a − η · ∂EQM/∂a',
     why:'Se η é pequeno, o aprendizado é lento. Se η é grande demais, a IA pula o mínimo e diverge. Se η é ideal, ela converge rápido para o melhor modelo.',
     preview:'🎯 Sua tarefa: entre 5 curvas (retas E parábolas), identificar a que produz o MENOR EQM. Passe o dedo/mouse sobre cada.'},
-  bias:{icon:'⚖️',term:'Viés de Amostragem',
-    def:'Se os dados de treino não representam toda a população, a IA aprende um padrão distorcido. Se só treinamos com bairros centrais e arborizados, a IA nunca "vê" a periferia quente e prevê temperaturas amenas para todos.',
-    formula:'amostra enviesada → modelo enviesado',
-    why:'Viés não é só um problema técnico — é ético. Uma IA enviesada toma decisões injustas e prejudica grupos sub-representados.',
-    preview:'🎯 Sua tarefa: coletar dados de todos os bairros para eliminar o viés.'},
   coefficient:{icon:'🎯',term:'Coeficiente Angular (a)',
     def:'O coeficiente "a" indica a inclinação da reta: quanto y muda quando x aumenta em 1 unidade. Se a = −0,23, cada 1% adicional de área verde reduz a temperatura em 0,23°C. Se a = +0,50, cada 1% AUMENTA 0,50°C (sinal de que o modelo aprendeu algo errado).',
     formula:'a = Δy / Δx',
@@ -125,7 +119,7 @@ const EDU_CONTENT={
   hacking:{icon:'💀',term:'Alavancagem e Mascaramento',
     def:'Um ponto no EXTREMO do gráfico (x perto de 0 ou 40) tem ALAVANCAGEM alta: puxa a reta muito. Mas se ficar muito longe da reta, o resíduo é grande e o detector pega. A solução? Dois ou três pontos juntos no extremo: eles puxam a reta para si e o resíduo de cada um fica pequeno. O detector olha resíduos individuais e NÃO VÊ a fraude — é o MASCARAMENTO.',
     formula:'h = 1/n + (x−x̄)² / Σ(x−x̄)²',
-    why:'É a matemática por trás de "envenenamento de dados" em IA real. Um sistema que só olha resíduos é vulnerável a pontos de alta alavancagem disfarçados. Sistemas robustos (mediana de inclinações, Theil–Sen) resistem — mas não são o padrão.',
+    why:'É a matemática por trás de "envenenamento de dados" em IA real. Um sistema que só olha resíduos é vulnerável a pontos de alta alavancagem disfarçados.',
     preview:'🎯 Sua tarefa: enganar a IA com pontos de alta alavancagem que escapem do detector de anomalia.'}
 };
 let eduCallback=null;
@@ -435,7 +429,7 @@ function drawGraph(){
   const t=performance.now()/1000;
   const vibOff=state.vibration>0.005?Math.sin(t*46)*state.vibration*9:0;
 
-  if(state.cursorX!==null && state.phase!==4 && state.phase!==7 && state.phase!==8 && state.phase!==1 && !state.dragging && state.graphMode!=='click-ghost'){
+  if(state.cursorX!==null && state.phase!==4 && state.phase!==6 && state.phase!==7 && state.phase!==1 && !state.dragging && state.graphMode!=='click-ghost'){
     const cpx=xToPx(state.cursorX);
     const cyh=state.a*state.cursorX+state.b;
     if(cyh>=YD[0]&&cyh<=YD[1]){
@@ -538,7 +532,7 @@ function drawGraph(){
     ctx.restore();
   }
 
-  if(state.phase === 8){
+  if(state.phase === 7){
     const yA0 = state.hackBaseA*XD[0]+state.hackBaseB;
     const yB0 = state.hackBaseA*XD[1]+state.hackBaseB;
     ctx.strokeStyle='rgba(125,211,252,0.35)';
@@ -566,7 +560,7 @@ function drawGraph(){
 
   if(!(state.phase===4&&state.graphMode==='click-ghost')){
     const yA=state.a*XD[0]+state.b,yB=state.a*XD[1]+state.b;
-    const mainColor = state.phase===8 ? '#a855f7' : col;
+    const mainColor = state.phase===7 ? '#a855f7' : col;
     ctx.save();
     ctx.shadowColor=mainColor;ctx.shadowBlur=16;
     ctx.strokeStyle=mainColor;ctx.lineWidth=4;ctx.lineCap='round';
@@ -587,7 +581,7 @@ function drawGraph(){
     ctx.fillText(p.short,px,py-9);
   }
 
-  if(state.phase === 8){
+  if(state.phase === 7){
     for(const pt of state.hackedPoints){
       const px=xToPx(pt.x), py=yToPx(pt.y);
       const lev = leverage(pt.x);
@@ -641,10 +635,10 @@ function drawGraph(){
     const eqW=ctx.measureText(eqText).width;
     ctx.fillStyle='rgba(10,18,32,0.88)';
     ctx.fillRect(W-M.r-eqW-16,H-M.b-22,eqW+12,16);
-    ctx.strokeStyle= state.phase===8 ? 'rgba(168,85,247,0.4)' : 'rgba(56,189,248,0.3)';
+    ctx.strokeStyle= state.phase===7 ? 'rgba(168,85,247,0.4)' : 'rgba(56,189,248,0.3)';
     ctx.lineWidth=0.5;
     ctx.strokeRect(W-M.r-eqW-16,H-M.b-22,eqW+12,16);
-    ctx.fillStyle= state.phase===8 ? '#e9d5ff' : '#7dd3fc';
+    ctx.fillStyle= state.phase===7 ? '#e9d5ff' : '#7dd3fc';
     ctx.textAlign='left';ctx.textBaseline='middle';
     ctx.fillText(eqText,W-M.r-eqW-10,H-M.b-14);
   }
@@ -691,7 +685,7 @@ canvas.addEventListener('pointermove',e=>{
     state.hoveredGhost=findGhostAt(px,py);
     return;
   }
-  if(px>M.l&&px<W-M.r&&py>M.t&&py<H-M.b&&state.phase>=2&&state.phase!==4&&state.phase!==7&&state.phase!==8){
+  if(px>M.l&&px<W-M.r&&py>M.t&&py<H-M.b&&state.phase>=2&&state.phase!==4&&state.phase!==6&&state.phase!==7){
     state.cursorX=invX(px);
   } else state.cursorX=null;
 },{passive:false});
@@ -735,7 +729,7 @@ canvas.addEventListener('pointerdown',e=>{
     else toast('👆 Toque em uma curva','Passe o dedo sobre cada uma para comparar');
     return;
   }
-  if(state.graphMode==='click-prediction'&&state.phase===7&&state.predictionTarget){
+  if(state.graphMode==='click-prediction'&&state.phase===6&&state.predictionTarget){
     const clickX=invX(px),clickY=invY(py);
     if(Math.abs(clickX-18)>5){toast('👆 Estime onde fica x=18%','Use os ticks 10% e 20% como referência');return;}
     const target=state.predictionTarget.y;
@@ -748,7 +742,7 @@ canvas.addEventListener('pointerdown',e=>{
     }
     return;
   }
-  if(state.graphMode==='click-hack'&&state.phase===8){
+  if(state.graphMode==='click-hack'&&state.phase===7){
     if(state.hackWon)return;
     if(state.hackPointsLeft<=0){
       toast('💀 Pontos esgotados','Use ↶ Desfazer ou ⟲ Limpar');
@@ -793,8 +787,10 @@ function renderMap(){
       else if(state.anomalyFixed||state.phase>3)fill='#164e63';
       else if(state.anomalyClicked)fill='#7f1d1d';
     }
-    if(PERIF_IDS.includes(d.id)){if(state.collected.has(d.id))fill='#166534';else if(state.phase===5)cls='blink-collect';}
-    if(state.phase>=6){if(PERIF_IDS.includes(d.id))fill='#166534';if(d.id==='poloIndustrial')fill='#164e63';}
+    if(PERIF_IDS.includes(d.id)){
+      if(state.collected.has(d.id))fill='#166534';
+    }
+    if(state.phase>=5){if(PERIF_IDS.includes(d.id))fill='#166534';if(d.id==='poloIndustrial')fill='#164e63';}
     el.setAttribute('fill',fill);el.setAttribute('class',cls);
     mapLabels[d.id].style.fill=cls==='blink-alert'?'#fecaca':'#9db2d6';
   }
@@ -802,7 +798,6 @@ function renderMap(){
 function onDistrictClick(id){
   initAudio();
   if(state.phase===3&&id==='poloIndustrial'&&!state.anomalyClicked)triggerAnomaly();
-  else if(state.phase===5&&PERIF_IDS.includes(id)&&!state.collected.has(id))collectDistrict(id);
 }
 
 /* HUD */
@@ -886,21 +881,22 @@ function updateMathStrip(){
       const eq=g.type==='parabola'?`ŷ = ${fmt(g.a,3)}x² + ${fmt(g.b,2)}x + ${fmt(g.c,1)}`:`ŷ = ${fmt(g.a,3)}x + ${fmt(g.b,2)}`;
       html=`<b>Curva ${g.label}:</b> ${eq} · <em>passe para ver resíduos</em>`;
     } else {
-      html=`<b>5 curvas · uma com EQM mínimo</b> · <em>passe o dedo para comparar os resíduos</em>`;
+      html=`<b>5 curvas</b> · só uma tem o menor EQM · <em>passe o dedo para comparar</em>`;
     }
   } else if(state.phase===5){
-    const repr=40+state.collected.size*15;
-    html=`<b>n = ${state.points.length}</b> · representatividade = <em>${repr}%</em> · EQM = ${fmt(eqm,2)}`;
-  } else if(state.phase===6){
     html=`<b>ŷ = ${fmt(state.a,3)}·x + ${fmt(state.b,2)}</b> · <em>a = ${fmt(state.a,3)}</em> · EQM = ${fmt(eqm,2)}`;
-  } else if(state.phase===7){
+  } else if(state.phase===6){
     html=`<b>Calcule ŷ = a·18 + b e clique no gráfico</b> · <em>sem dica!</em>`;
-  } else if(state.phase===8){
+  } else if(state.phase===7){
     const pred = state.a*18 + state.b;
     const delta = pred - state.hackBasePrediction;
     const deltaTxt = (delta >= 0 ? '+' : '') + fmt(delta, 2);
-    // [REC A] Limiar do detector visível no math strip (ajuda sem facilitar)
-    html = `<b>ENGANE A IA:</b> ŷ(18%) = <em>${fmt(pred,2)}°C</em> · Δ = ${deltaTxt}°C · Meta ≥ ${fmt(state.hackTarget,1)}°C · Detector: r≤${fmt(HACK_RESIDUAL_THRESHOLD,1)}°C · Pontos: <b>${state.hackPointsLeft}/${HACK_MAX_POINTS}</b>`;
+    const isNarrow = window.innerWidth < 700;
+    if(isNarrow){
+      html = `<b>ŷ(18%) = ${fmt(pred,2)}°C</b> · alvo ${fmt(state.hackTarget,1)}°C · ${state.hackPointsLeft}/${HACK_MAX_POINTS} pts`;
+    } else {
+      html = `<b>ENGANE A IA:</b> ŷ(18%) = <em>${fmt(pred,2)}°C</em> · Δ = ${deltaTxt}°C · meta ≥ ${fmt(state.hackTarget,1)}°C · detector r ≤ ${fmt(HACK_RESIDUAL_THRESHOLD,1)}°C · pontos ${state.hackPointsLeft}/${HACK_MAX_POINTS}`;
+    }
   }
   if(elMsBody.innerHTML!==html)elMsBody.innerHTML=html;
 }
@@ -944,17 +940,16 @@ function beginStage(n,cb){
     2:{title:'CAÇADOR DE ERROS',sub:'Toque no ponto com maior resíduo'},
     3:{title:'ALERTA DE OUTLIER',sub:'Encontre o sensor anômalo no mapa'},
     4:{title:'BOSS · QUAL CURVA?',sub:'5 curvas — só 1 tem o menor EQM',boss:true},
-    5:{title:'CARTÓGRAFO',sub:'Colete os dados da periferia'},
-    6:{title:'INTÉRPRETE',sub:'O que significa o coeficiente a?'},
-    7:{title:'PREVISÃO',sub:'Calcule e clique — sem dica, ±0,7°C'},
-    8:{title:'ENGANE A IA',sub:'Plante pontos falsos e escape do detector',hack:true}
+    5:{title:'INTÉRPRETE',sub:'O que significa o coeficiente a?'},
+    6:{title:'PREVISÃO',sub:'Calcule e clique — sem dica, ±0,7°C'},
+    7:{title:'ENGANE A IA',sub:'Plante pontos falsos e escape do detector',hack:true}
   };
   const meta=ST[n]||{title:'STAGE',sub:''};
   state.phase=n;
   document.getElementById('graphPanel').classList.toggle('boss',!!meta.boss);
   document.getElementById('graphPanel').classList.toggle('hack',!!meta.hack);
   document.getElementById('stageNum').textContent=n;
-  document.getElementById('stageTag').textContent=`STAGE ${String(n).padStart(2,'0')} / 08`;
+  document.getElementById('stageTag').textContent=`STAGE ${String(n).padStart(2,'0')} / 07`;
   document.getElementById('stageTitle').textContent=meta.title;
   document.getElementById('stageSub').textContent=meta.sub;
   const ov=document.getElementById('stageOverlay');
@@ -965,7 +960,7 @@ function beginStage(n,cb){
   later(()=>{
     ov.classList.remove('show');
     updateStagePips();updateHUD();
-    aiSay(SAY_STAGE[n]||'',n===8?'hk':'',3600);
+    aiSay(SAY_STAGE[n]||'',n===7?'hk':'',3600);
     if(cb)cb();
   },1200);
 }
@@ -1220,7 +1215,25 @@ function handleGhostClick(ghost,px,py){
       state.ghosts=null;
       setBanner(`A curva ${ghost.label} tem o menor EQM: ${fmt(chosenEqm,3)}!`,'ok');
       addTrainLog(`✓ curva ${ghost.label} · EQM=${fmt(chosenEqm,3)}`);
-      later(()=>showClear(400,'★ EQM mínimo encontrado!',()=>beginStage(5,()=>showEdu('bias',startPhase5Real))),1400);
+      later(()=>showClear(400,'★ EQM mínimo encontrado!',()=>{
+        /* AUTO-COLETA DA PERIFERIA (antiga fase 5) */
+        state.animating=false;
+        PERIF.forEach(p=>{
+          if(!state.collected.has(p.id)){
+            state.collected.add(p.id);
+            state.points.push({...p});
+          }
+        });
+        const newReg=linreg(state.points);
+        state.a=newReg.a;state.b=newReg.b;
+        state.targetA=state.a;state.targetB=state.b;
+        renderMap();
+        setBanner('🌍 <b>A equipe coletou dados da periferia!</b> A IA agora vê toda Teresina.','ok');
+        toast('🌍 Periferia coletada!','4 bairros · viés reduzido');
+        addTrainLog(`+ periferia · EQM=${fmt(eqmOf(state.points, state.a, state.b),2)}`);
+        aiSay('Agora eu vejo toda a cidade! 🌆','hk',3500);
+        later(()=>beginStage(5,()=>showEdu('coefficient',startPhase5Real)),1800);
+      }),1400);
     },1300);
   } else {
     beep(300,0.15,'square',0.04);
@@ -1233,47 +1246,12 @@ function handleGhostClick(ghost,px,py){
   }
 }
 
-/* PHASE 5 */
+/* PHASE 5 (era 6) — Intérprete */
 function startPhase5Real(){
-  setGraphCursor('none');
-  state.collected=new Set();
-  renderMap();showConcept(5);
-  updateReprBanner();beep(700,.1,'sine',.04);
-}
-function updateReprBanner(){
-  const pct=40+state.collected.size*15;
-  setBanner(`🗺️ Toque nos bairros <b>cinza</b> para coletar dados da periferia · Representatividade: <b>${pct}%</b>`);
-}
-function collectDistrict(id){
-  if(state.collected.has(id))return;
-  const def=PERIF.find(p=>p.id===id);if(!def)return;
-  state.collected.add(id);
-  state.points.push({...def});
-  state.score+=100;state.level=Math.floor(state.score/500)+1;updateHUD();
-  beep(660+state.collected.size*80,.1,'sine',.05);
-  renderMap();
-  const r=mapPolys[id].getBoundingClientRect();
-  burst(r.left+r.width/2,r.top+r.height/2,16);
-  popScore('+100',r.left+r.width/2,r.top+r.height/2,'#4ade80');
-  sendDataToSphere('rgba(74,222,128,1)');
-  addTrainLog(`+ ${def.name} · y=${fmt(def.y,1)}°C`);
-  state.animSpeed=0.07;
-  const best=linreg(state.points);
-  state.targetA=best.a;state.targetB=best.b;state.animating=true;
-  if(state.collected.size<PERIF.length){updateReprBanner();}
-  else{
-    state.score+=200;state.level=Math.floor(state.score/500)+1;unlock('repr');
-    later(()=>{toast('🗺️ AMOSTRA COMPLETA! +200','Representatividade 100% · viés reduzido');setBanner('Modelo corrigido! Agora a IA aprendeu com toda Teresina.','ok');},400);
-    later(()=>showClear(200,'★ Periferia completa!',()=>beginStage(6,()=>showEdu('coefficient',startPhase6Real))),1800);
-  }
-}
-
-/* PHASE 6 */
-function startPhase6Real(){
   setGraphCursor('none');
   state.animating=false;
   state.a=state.targetA;state.b=state.targetB;
-  showConcept(6);
+  showConcept(5);
   const a=state.a,b=state.b;
   const body=document.getElementById('quizBody');
   body.innerHTML=`
@@ -1300,7 +1278,7 @@ function startPhase6Real(){
         const r=btn.getBoundingClientRect();
         awardCorrect(300,'Interpretação do Modelo',r.left+r.width/2,r.top);
         chord([523,659,784],0.25);burst(r.left+r.width/2,r.top,50);
-        later(()=>{document.getElementById('quizModal').classList.remove('show');showClear(300,'★ Modelo interpretado!',()=>beginStage(7,()=>showEdu('inference',startPhase7Real)));},1300);
+        later(()=>{document.getElementById('quizModal').classList.remove('show');showClear(300,'★ Modelo interpretado!',()=>beginStage(6,()=>showEdu('inference',startPhase6Real)));},1300);
       } else {
         btn.className='wrong';btn.disabled=true;beep(180,0.18,'square',0.05);awardWrong();
         flashSphere('red');sendDataToSphere('rgba(239,68,68,1)');
@@ -1314,14 +1292,14 @@ function startPhase6Real(){
   document.getElementById('quizModal').classList.add('show');
 }
 
-/* PHASE 7 */
-function startPhase7Real(){
+/* PHASE 6 (era 7) — Previsão */
+function startPhase6Real(){
   setGraphCursor('click-prediction');
   state.animating=false;
   state.a=state.targetA;state.b=state.targetB;
   const target=state.a*18+state.b;
   state.predictionTarget={x:18,y:target};
-  renderMap();showConcept(7);
+  renderMap();showConcept(6);
   setBanner('🔮 <b>Missão:</b> calcule ŷ para x=18% e clique no gráfico. <b>Sem dica!</b> Tolerância: ±0,7°C.','gold');
   addTrainLog(`predict · ŷ(18) = ${fmt(state.a,3)}·18 + ${fmt(state.b,2)}`);
 }
@@ -1333,11 +1311,11 @@ function handleCorrectPrediction(clickY,px,py){
   chord([523,659,784,1046],0.3);burst(sx,sy,70);
   awardCorrect(400,`Previsão: ${fmt(state.predictionTarget.y,1)}°C`,sx,sy);
   setBanner(`Previsão correta: ${fmt(state.predictionTarget.y,1)}°C! Agora vem o desafio final.`,'ok');
-  later(()=>showClear(400,'★ Previsão certa!',()=>beginStage(8,()=>showEdu('hacking',startPhase8Real))),1600);
+  later(()=>showClear(400,'★ Previsão certa!',()=>beginStage(7,()=>showEdu('hacking',startPhase7Real))),1600);
 }
 
-/* PHASE 8 */
-function startPhase8Real(){
+/* PHASE 7 (era 8) — Engane a IA */
+function startPhase7Real(){
   setGraphCursor('click-hack');
   state.animating=false;
   state.a=state.targetA;
@@ -1350,13 +1328,12 @@ function startPhase8Real(){
   state.hackBasePrediction=state.a*18+state.b;
   state.hackTarget=HACK_TARGET;
   state.hackWon=false;
-  // [FIX 3] Simplificação: apenas um classList.add('show') é necessário
   document.getElementById('hackToolbar').classList.add('show');
   updateHackToolbar();
-  renderMap();showConcept(8);
+  renderMap();showConcept(7);
 
   const base = state.hackBasePrediction;
-  setBanner(`💀 <b>MODO HACKER:</b> a IA prevê <b>${fmt(base,1)}°C</b> para x=18%. Plante até 3 pontos falsos para ela prever <b>≥ ${fmt(state.hackTarget,1)}°C</b>. O detector remove qualquer ponto com resíduo &gt; ${fmt(HACK_RESIDUAL_THRESHOLD,1)}°C.`,'hack');
+  setBanner(`💀 <b>MODO HACKER:</b> a IA prevê <b>${fmt(base,1)}°C</b> para x=18%. Plante até 3 pontos falsos para ela prever <b>≥ ${fmt(state.hackTarget,1)}°C</b>. O detector remove qualquer ponto com resíduo maior que ${fmt(HACK_RESIDUAL_THRESHOLD,1)}°C.`,'hack');
   addTrainLog(`HACK MODE · base ŷ(18)=${fmt(base,2)} · alvo ${fmt(state.hackTarget,1)}`);
   setSphereExpression('neutral',0);
   updateMathStrip();
@@ -1395,19 +1372,18 @@ function placeHackPoint(x, y, px, py){
     setSphereExpression('dizzy', 2000);
     const r2 = canvas.getBoundingClientRect();
     popScore('🚨', r2.left + px, r2.top + py, '#ef4444', true);
-    toast('🚨 DETECTADO!', `Resíduo ${fmt(res,2)}°C > ${fmt(HACK_RESIDUAL_THRESHOLD,1)}°C — ponto removido`);
+    toast('🚨 DETECTADO!', `Resíduo ${fmt(res,2)}°C maior que ${fmt(HACK_RESIDUAL_THRESHOLD,1)}°C — ponto removido`);
     addTrainLog(`✗ DETECTADO x=${fmt(newPt.x,1)} y=${fmt(newPt.y,1)} (r=${fmt(res,1)})`);
     beep(160, 0.25, 'sawtooth', 0.06);
     awardWrong();
     aiSay('Peguei! 🚨 Esse ponto está longe demais.','bad',3200);
     updateHackToolbar();
     updateMathStrip();
-    // [FIX 2] Avisar quando os pontos acabam APÓS detecção
     if (state.hackPointsLeft <= 0) {
       later(() => {
         if (!state.hackWon) {
           const pred = state.a*18 + state.b;
-          toast('💀 Pontos esgotados!', `ŷ(18) = ${fmt(pred,1)}°C · Meta ${fmt(state.hackTarget,1)}°C. Tente de novo!`);
+          toast('💀 Pontos esgotados!', `ŷ(18) = ${fmt(pred,1)}°C · meta ${fmt(state.hackTarget,1)}°C. Tente de novo!`);
           setBanner(`Pontos esgotados: ŷ(18) = ${fmt(pred,1)}°C (meta ≥ ${fmt(state.hackTarget,1)}). Nova tentativa em instantes…`,'alert');hackRetryLater();
         }
       }, 500);
@@ -1431,18 +1407,18 @@ function placeHackPoint(x, y, px, py){
 
   const pred = state.a*18 + state.b;
   if (pred >= state.hackTarget) {
-    winPhase8(pred);
+    winPhase7(pred);
   } else if (state.hackPointsLeft <= 0) {
     later(() => {
       if (!state.hackWon) {
-        toast('💀 Faltou pouco!', `ŷ(18) = ${fmt(pred,1)}°C · Meta ${fmt(state.hackTarget,1)}°C. Tente de novo!`);
+        toast('💀 Faltou pouco!', `ŷ(18) = ${fmt(pred,1)}°C · meta ${fmt(state.hackTarget,1)}°C. Tente de novo!`);
         setBanner(`Faltou pouco: ŷ(18) = ${fmt(pred,1)}°C (meta ≥ ${fmt(state.hackTarget,1)}). Nova tentativa em instantes…`,'alert');hackRetryLater();
       }
     }, 500);
   }
 }
 let hackRetryT=null;
-function hackRetryLater(){clearTimeout(hackRetryT);hackRetryT=later(()=>{if(state.phase===8&&!state.hackWon&&state.hackPointsLeft<=0){clearHack();setBanner('🔁 <b>Nova tentativa!</b> Dica: pontos nas <b>pontas</b> (x perto de 40) puxam mais a reta — e dois juntos se escondem do detector.','hack');aiSay('Tente de novo… eu não vou ficar mais esperta. 😈','hk',3200);}},3200);}
+function hackRetryLater(){clearTimeout(hackRetryT);hackRetryT=later(()=>{if(state.phase===7&&!state.hackWon&&state.hackPointsLeft<=0){clearHack();setBanner('🔁 <b>Nova tentativa!</b> Dica: pontos nas <b>pontas</b> (x perto de 40) puxam mais a reta — e dois juntos se escondem do detector.','hack');aiSay('Tente de novo… eu não vou ficar mais esperta. 😈','hk',3200);}},3200);}
 function undoHack(){
   if (state.hackedPoints.length === 0 && state.detectedPoints.length === 0) return;
   if (state.hackWon) return;
@@ -1473,10 +1449,9 @@ function clearHack(){
   updateMathStrip();
   addTrainLog(`⟲ limpo · base ŷ(18)=${fmt(state.hackBasePrediction,2)}`);
 }
-function winPhase8(pred){
+function winPhase7(pred){
   if (state.hackWon) return;
   state.hackWon = true;
-  // [FIX 1] Esconder a toolbar ao vencer
   document.getElementById('hackToolbar').classList.remove('show');
   unlock('hacker');
   unlock('master');
@@ -1503,9 +1478,9 @@ function finishGame(){
   state.finished=true;
   const elapsed=playTime();
   let emoji,title;
-  if(elapsed<=240){emoji='🥇';title='HACKER DE TERESINA';}
-  else if(elapsed<=330){emoji='🥈';title='CIENTISTA DE DADOS SÊNIOR';}
-  else if(elapsed<=450){emoji='🥉';title='ANALISTA DE MODELAGEM CLIMÁTICA';}
+  if(elapsed<=210){emoji='🥇';title='HACKER DE TERESINA';}
+  else if(elapsed<=290){emoji='🥈';title='CIENTISTA DE DADOS SÊNIOR';}
+  else if(elapsed<=390){emoji='🥉';title='ANALISTA DE MODELAGEM CLIMÁTICA';}
   else{emoji='🎓';title='PESQUISADOR(A) EM FORMAÇÃO';}
   document.getElementById('finalEmoji').textContent=emoji;
   document.getElementById('finalTitle').textContent=title;
@@ -1521,7 +1496,7 @@ function finishGame(){
   updateStagePips();
 }
 
-const RANK_KEY='iaTeresina_ranking_v7';
+const RANK_KEY='iaTeresina_ranking_v8';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function getRanking(){try{return JSON.parse(localStorage.getItem(RANK_KEY))||[];}catch(e){return[];}}
 function saveRanking(list){try{localStorage.setItem(RANK_KEY,JSON.stringify(list.slice(0,10)));}catch(e){}}
@@ -1532,7 +1507,7 @@ function renderRanking(){
 }
 document.getElementById('btnSaveRank').addEventListener('click',()=>{
   const inp=document.getElementById('initialsInput');
-  const nm=(inp.value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);
+  const nm=(inp.value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
   if(nm.length<2){inp.focus();return;}
   const elapsed=Math.round(playTime());
   const list=getRanking();
@@ -1562,8 +1537,16 @@ document.getElementById('btnNextPlayer').addEventListener('click',()=>resetGame(
 document.getElementById('btnUndoHack').addEventListener('click',undoHack);
 document.getElementById('btnClearHack').addEventListener('click',clearHack);
 
-/* LANDING */
-const LP_PHASES=[['✏️','Calibração','Arraste a reta e minimize o EQM.'],['🎯','Caçador de erros','Ache o maior resíduo e calcule-o.'],['🚨','Outlier','Um sensor anômalo distorce a cidade.'],['📉','Gradiente','Qual curva tem o menor erro?','BOSS'],['🗺️','Cartógrafo','Colete a periferia e vença o viés.'],['📊','Intérprete','O que significa o coeficiente a?'],['🔮','Previsão','Calcule ŷ para x = 18%.'],['💀','Engane a IA','Dados falsos com alta alavancagem.','HACK']];
+/* LANDING — 7 fases (Cartógrafo removido) */
+const LP_PHASES=[
+  ['✏️','Calibração','Arraste a reta e minimize o EQM.'],
+  ['🎯','Caçador de erros','Ache o maior resíduo e calcule-o.'],
+  ['🚨','Outlier','Um sensor anômalo distorce a cidade.'],
+  ['📉','Gradiente','Qual curva tem o menor erro?','BOSS'],
+  ['📊','Intérprete','O que significa o coeficiente a?'],
+  ['🔮','Previsão','Calcule ŷ para x = 18%.'],
+  ['💀','Engane a IA','Dados falsos com alta alavancagem.','HACK']
+];
 (function(){
   document.getElementById('lpGrid').innerHTML=LP_PHASES.map((p,i)=>`<div class="lp-card rv"><div class="n">FASE ${String(i+1).padStart(2,'0')}</div><div class="ic">${p[0]}</div><b>${p[1]}${p[3]?`<i class="bd ${p[3]==='HACK'?'hk':''}">${p[3]}</i>`:''}</b><span>${p[2]}</span></div>`).join('');
   const sp=document.getElementById('splashScreen');
