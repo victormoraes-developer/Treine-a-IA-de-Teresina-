@@ -290,8 +290,24 @@ main{flex:1 1 auto;display:grid;grid-template-columns:1.32fr 1fr;gap:9px;
 
 /* MATH STRIP: permite quebra em telas estreitas (evita truncamento "colado") */
 @media (max-width: 700px) {
-  .mathstrip { white-space: normal; flex-wrap: wrap; align-items: center; row-gap: 2px; line-height: 1.35; padding: 4px 8px; }
-  .ms-body { white-space: normal; overflow: hidden; text-overflow: clip; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-spacing: 1px; }
+  .mathstrip {
+    white-space: normal;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    line-height: 1.35;
+    padding: 4px 8px;
+  }
+  .ms-body {
+    white-space: normal;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+    box-orient: vertical;
+    word-spacing: 1px;
+  }
   .train-indicator { display: none; }
 }
 
